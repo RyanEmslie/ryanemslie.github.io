@@ -1,7 +1,8 @@
 @charset "UTF-8";
 body {
   background: #fff;
-  font-family: "Montserrat", sans-serif; }
+  font-family: "Montserrat", sans-serif; 
+}
 
 ul {
   margin: 0;
@@ -12,20 +13,6 @@ h1 {
   font-family: "Montserrat", sans-serif;
   line-height: 0.7;
   margin: 0 auto;
-  text-align: left;
-  width: 1.875em; }
-/*CUSTOM*/
-.player1Label {
-  font-family: "Montserrat", sans-serif;
-  line-height: 0.7;
-  margin: 2% 3%;
-  text-align: left;
-  width: 1.875em; }
-/*CUSTOM*/
-.player2Label {
-  font-family: "Montserrat", sans-serif;
-  line-height: 0.7;
-  margin: -4% 65%;
   text-align: left;
   width: 1.875em; }
 
@@ -79,16 +66,19 @@ h1 {
       line-height: 0;
       z-index: -1; }
   .screen-win-tie {
-    background: #54D17A; }
+    background: #54D17A; 
+  }   
   .screen-win-one {
-    background: #FFA000; }
+    background: #FFA000; 
+  }
     .screen-win-one .button {
       color: #3688C3; }
     .screen-win-one p:before {
       content: "o";
       top: 1.75rem; }
   .screen-win-two {
-    background: #3688C3; }
+    background: #3688C3;
+   }
     .screen-win-two .button {
       color: #FFA000; }
     .screen-win-two p:before {
@@ -99,6 +89,17 @@ h1 {
   padding-top: 1em; }
   .board h1 {
     margin-top: 0.3em; }
+  .board p#displayName1 {
+    margin-left: 20vw;
+  }
+  .board p#displayName2 {
+  
+    margin-left: 80vw;
+    /* margin-top: -16; */
+    margin-bottom: 0px;
+    /* margin-top: -16; */
+
+  }
 
 .players {
   color: rgba(0, 0, 0, 0.2);
@@ -125,12 +126,11 @@ h1 {
   #player2.active {
     background: #3688C3; }
 
-/*Nine boxes - board*/
 .boxes {
   width: 480px;
   margin: 3em auto 0; }
   .boxes .box {
-    background: #EEEFEF;
+    background: #EFEFEF;
     border-radius: 4px;
     width: 150px;
     height: 150px;
@@ -140,27 +140,35 @@ h1 {
     padding: 1.75em;
     cursor: pointer;
     box-sizing: border-box;
-    transition: 0.2s ease;
+    transition: 0.2s ease; 
     background-size: 100px 100px;
     background-repeat: no-repeat;
     background-position: center center;}
     .boxes .box:nth-child(3n) {
       margin-right: 0; }
-/*fills a square with orange circle*/
     .boxes .box-filled-1 {
       background-color: #FFA000;
       background-image: url(../img/o.svg); }
-/*fills a square with blue cross*/
     .boxes .box-filled-2 {
       background-color: #3688C3;
       background-image: url(../img/x.svg); }
 
 
-.boxes .image-1 {
-    background-image: url(../img/o.svg);
-    fill: white;
+/* ****************CUSTOM CSS******** */
+
+.hidden {
+  display: none;
 }
-.boxes .image-2 {
-    background-image: url(../img/x.svg);
-    fill: white;
+
+fieldset {
+  border: none;
+}
+
+#gameSelect {
+  margin-top:25px;
+  margin-bottom:25px;
+}
+
+#gameTypeBtn {
+  margin-top:10px;
 }

@@ -1,221 +1,403 @@
-//Ryan Emslie - JavaScript Full Stack
-//Techdegree - Unit 4 - Exceeds Expectation
-//This version of the program is set up to be a human verse computer player
-//One issue I ran into was that the computer 'plays' too quickly for the blue 'active' class to be visible
-//I did not use the minmax algorithm, instead I wanted to porgram with the knowledge I had
-//I designed this so it wasn't a 'perfect game' - meaning a tie everytime - the computer is beatable
-//Still feel like I am still not achieving "D.R.Y." programming but getting better
+let gameType = "";
+let playerOne = "";
+let playerTwo = "";
+let playerComputer = "Computer";
+let count = 0;
+let randomIndex = [];
+let totalMoves = [];
+let tempArray = [];
+let temp2Array = [];
+let winningMoves = [
+  [1, 2, 3],
+  [4, 5, 6],
+  [7, 8, 9],
+  [1, 4, 7],
+  [2, 5, 8],
+  [3, 6, 9],
+  [1, 5, 9],
+  [3, 5, 7]
+];
+player1TestMoves = [];
+player2TestMoves = [];
+player1Moves = { 1: 0, 2: 0, 3: 0, 4: 0, 5: 0, 6: 0, 7: 0, 8: 0, 9: 0 };
+player2Moves = { 1: 0, 2: 0, 3: 0, 4: 0, 5: 0, 6: 0, 7: 0, 8: 0, 9: 0 };
+aRandomArray();
+initialize();
 
+// ***************************************************************
+// **********************      SETUP   *****************************
+// ***************************************************************
+function initialize() {
+  hideBtn = document.querySelector("#startButton").classList.add("hidden");
+} //initialize()
 
-function startGame(){
-    //This block of code sets up the board and resets variables
-    let count = 0;
-    $('#start').show();
-    $('#board').hide();
-    $('#finish').hide();
-    $("ul.boxes li").removeClass('box-filled-1 box-filled-2');
-    $('#finish').removeClass('screen-win-one screen-win-two screen-win-tie');
-    player1Moves = [0,0,0,0,0,0,0,0,0];
-    computerMoves = [0,0,0,0,0,0,0,0,0];
-    let player1Name;
-    $('#player1').removeClass('active');
-    $('#player2').removeClass('active');
+//
+//Function displays corect name input based on game type selected
+function playerNames() {
+  gameType = "";
+  hideClassById("playerOneName");
+  hideClassById("playerTwoName");
+  hideClassById("startButton");
+  if (document.getElementsByName("gameType")[0].checked) {
+    gameType = "PvP";
+    showClassById("playerOneName");
+    showClassById("playerTwoName");
+  } else if (document.getElementsByName("gameType")[1].checked) {
+    gameType = "PvCEasy";
+    showClassById("playerOneName");
+  } else if (document.getElementsByName("gameType")[2].checked) {
+    gameType = "PvCMedium";
+    showClassById("playerOneName");
+  }
+  showClassById("startButton");
+} //playerNames()
 
-
-
-
-
-
-
-//Click event tied to Start Game button
-    $( "#start .button" ).click( function()  {
-//****************** EXTRA CREDIT ************************
-    //I hard coded the input text boxes into the index.html file 
-    count = 0;
-    //Resets the player1Moves and player2Moves objects
-    for (let i =0; i < 10; i++) {
-        player1Moves[i] = 0;
-        computerMoves[i] = 0;
+//
+//Function called after play correctly enters name - attached to button
+function startGame() {
+  playerOne = document.getElementById("playerOneName").value;
+  playerTwo = document.getElementById("playerTwoName").value;
+  if (gameType === "PvP") {
+    if (playerOne !== "" && playerTwo !== "") {
+      setGameBoard();
+    } else {
+      alert(`Please enter Both Player's Name`);
     }
-//*********************EXTRA CREDIT************************    
-    player1Name = $('#player1Input').val();
-     //Tests if Player 1 name was entered
-       if ( $('#player1Input').val().length < 1 ) {
-            alert('Please enter Player 1 Name');
-            return;
-        } 
-        $('#board').show();
-        $('#start').hide();
-        $('#player1').addClass('active');
-        $('.player1Label').text(player1Name);
-    });
+  } else if (gameType === "PvCEasy" || gameType === "PvCMedium") {
+    if (playerOne !== "") {
+      setGameBoard();
+    } else {
+      alert(`Please enter Player One Name`);
+    }
+  }
+} // startGame()
 
+function setGameBoard() {
+  hideClassById("start");
+  showClassById("board");
+  document.getElementById("player1").classList.add("active");
+  document.getElementById("player2").classList.remove("active");
+  if (gameType === "PvP") {
+    displayPlayers(playerOne, playerTwo);
+  } else {
+    displayPlayers(playerOne, playerComputer);
+  }
+} // setGameBoard()
 
+//displays users name on the game board
+function displayPlayers(x, y) {
+  document.getElementById("displayName1").textContent = x;
+  document.getElementById("displayName2").textContent = y;
+} //displayPlayers
 
+function hideClassById(id) {
+  document.getElementById(id).classList.add("hidden");
+} //hideClassById()
 
+function showClassById(id) {
+  document.getElementById(id).classList.remove("hidden");
+} //showClassById
 
+// ******************************************************
+//*****************************************************
+// **********EVENTLISTENERS**************************
+//*****************************************************
+document.querySelector("ul.boxes").addEventListener("mouseout", function(e) {
+  e.target.removeAttribute("style");
+}); // eventListener to hover image over available tile
+document.querySelector("ul.boxes").addEventListener("mouseover", function(e) {
+  if (
+    e.target.classList.contains("box-filled-1") ||
+    e.target.classList.contains("box-filled-2")
+  ) {
+  } else {
+    if (document.getElementById("player1").classList.contains("active")) {
+      e.target.style.backgroundImage = 'url("img/o.svg")';
+    } else {
+      e.target.style.backgroundImage = 'url("img/x.svg")';
+    }
+  }
+}); // mouse over event
 
+//Click function only for Player 1
+document.querySelector("ul.boxes").addEventListener("click", function(e) {
+  //if space is already taken nothing happens prevents click
+  if (
+    e.target.classList.contains("box-filled-1") ||
+    e.target.classList.contains("box-filled-2")
+  ) {
+    return;
+  } else {
+    //nested conditional if symbol is placed on open space based active class
+    if (document.getElementById("player1").classList.contains("active")) {
+      e.target.classList.add("box-filled-1");
+      let num = e.target.id;
+      player1Moves[num] = player1Moves[num] + 1;
+      player1TestMoves.push(num);
+      totalMoves.push([parseInt(num)]);
+      count = count + 1;
+    } else if (
+      document.getElementById("player2").classList.contains("active")
+    ) {
+      e.target.classList.add("box-filled-2");
+      let num = e.target.id;
+      player2Moves[num] = player2Moves[num] + 1;
+      count = count + 1;
+      console.log(`Count in EventList Player 2: ${count}`);
+    }
+  }
+  checkWinner();
+}); //eventListener click to place tile and change player turn
 
-//Hover event displaying possible move
-    $("ul.boxes li").hover(function(){
-        $("ul.boxes li").removeClass('image-1 image-2');
-        if ( $(this).hasClass('box-filled-1') || $(this).hasClass('box-filled-2') ) {
-        } else {
-            $(this).addClass('image-1');
-        } 
-    })
+//Function for game logic
+const checkWinner = () => {
+  if (
+    player1Moves[1] + player1Moves[2] + player1Moves[3] === 3 ||
+    player1Moves[4] + player1Moves[5] + player1Moves[6] === 3 ||
+    player1Moves[7] + player1Moves[8] + player1Moves[9] === 3 ||
+    player1Moves[1] + player1Moves[4] + player1Moves[7] === 3 ||
+    player1Moves[2] + player1Moves[5] + player1Moves[8] === 3 ||
+    player1Moves[3] + player1Moves[6] + player1Moves[9] === 3 ||
+    player1Moves[1] + player1Moves[5] + player1Moves[9] === 3 ||
+    player1Moves[3] + player1Moves[5] + player1Moves[7] === 3
+  ) {
+    setTimeout(function() {
+      gameOver();
+    }, 300);
+  } else if (
+    player2Moves[1] + player2Moves[2] + player2Moves[3] === 3 ||
+    player2Moves[4] + player2Moves[5] + player2Moves[6] === 3 ||
+    player2Moves[7] + player2Moves[8] + player2Moves[9] === 3 ||
+    player2Moves[1] + player2Moves[4] + player2Moves[7] === 3 ||
+    player2Moves[2] + player2Moves[5] + player2Moves[8] === 3 ||
+    player2Moves[3] + player2Moves[6] + player2Moves[9] === 3 ||
+    player2Moves[1] + player2Moves[5] + player2Moves[9] === 3 ||
+    player2Moves[3] + player2Moves[5] + player2Moves[7] === 3
+  ) {
+    setTimeout(function() {
+      gameOver();
+    }, 300);
+  } else if (count > 8) {
+    document.getElementById("player1").classList.remove("active");
+    document.getElementById("player2").classList.remove("active");
+    document.querySelector(".message").innerHTML = `TIE`;
+    document.querySelector("#finish").classList.add("screen-win-tie");
+    setTimeout(function() {
+      gameOver();
+    }, 300);
+  } else {
+    setTimeout(function() {
+      changePlayer();
+    }, 300);
+  }
+}; //function checkWinner
 
+//Computer picks a random number to test if space is available
+function computerTurnEasy() {
+  document.getElementById("player2").classList.add("active");
+  document.getElementById("player1").classList.remove("active");
+  for (let i = 0; i < randomIndex.length; i++) {
+    let testNum = randomIndex[i];
+    let test = document.querySelectorAll(".box")[testNum];
 
+    if (
+      test.classList.contains("box-filled-1") ||
+      test.classList.contains("box-filled-2")
+    ) {
+    } else {
+      document.querySelectorAll(".box")[testNum].classList.add("box-filled-2");
+      testNum = testNum + 1;
+      player2Moves[testNum] = player2Moves[testNum] + 1;
+      player2TestMoves.push(testNum);
+      totalMoves.push([testNum]);
+      count = count + 1;
+      i = 100;
+    }
+  }
+  checkWinner();
+} //function computerTurnEasy
 
+//function for medium play - defensive mode - prevents player 1 from winning (mostly)
+function computerTurnMedium() {
+  document.getElementById("player2").classList.add("active");
+  document.getElementById("player1").classList.remove("active");
 
-
-
-
-//Click event to put circle or cross
-    $("ul.boxes li").click(function(){
-        $('#player1').addClass('active');
-        //Player 1 fills in the board square if it is not already selected
-        if ( $(this).hasClass('box-filled-1') || $(this).hasClass('box-filled-2') ) {
-            return;
-        } else {
-            $(this).addClass('box-filled-1');
+  function emptyArray() {
+    temp2Array.length = 0;
+    tempArray.length = 0;
+  }
+  emptyArray();
+  //For loop that cycles through possible winning moves and filters out options that contain non-available spaces and pushes best move into new array
+  for (let k = 0; k < winningMoves.length; k++) {
+    for (let j = 0; j < winningMoves.length; j++) {
+      for (let i = 0; i < totalMoves.length; i++) {
+        if (totalMoves[i].includes(winningMoves[k][j])) {
+          let tempNum = totalMoves[i];
+          let test = winningMoves[k].filter(x => x !== tempNum[0]);
+          tempArray.push(test);
         }
-        
-        //Record Player 1 Moves
-        let num = $(this).attr("id");
-        player1Moves[num-1] = 1;
-        //Calculated number of turns to help determine if a Tie is achieved
+      }
+    }
+  }
+  console.log(`Temp 1 Array:  ${JSON.stringify(tempArray)}`);
+  //newly created array is filtered to find wining move (best defensive play)
+  for (let c = 0; c < tempArray.length; c++) {
+    for (let b = 0; b < tempArray.length; b++) {
+      for (let a = 0; a < totalMoves.length; a++) {
+        if (totalMoves[a].includes(tempArray[c][b])) {
+          let tempNum = totalMoves[a];
+          let test2 = tempArray[c].filter(x => x !== tempNum[0]);
+          temp2Array.push(test2);
+        }
+      }
+    }
+  }
+  console.log(`Temp 2 Array:   ${JSON.stringify(temp2Array)}`);
+
+  //if winning array is empty a spot will be chosen at ranom.  Similar to Easy mode
+  if (temp2Array.length > 0) {
+    playWinningMove();
+  } else {
+    randomSelector();
+  }
+
+  //Function uses newly create array to place position on the board.
+  function playWinningMove() {
+    console.log(`Play Winning Move Called`);
+    for (let i = 0; i < temp2Array.length; i++) {
+      if (temp2Array[i].length === 1) {
+        console.log(`This is the correct move ${temp2Array[i]}`);
+        let testNum = temp2Array[i][0] - 1;
+        console.log(`This is testNum: ${testNum}`);
+        let test = document.querySelectorAll(".box")[testNum];
+        if (
+          test.classList.contains("box-filled-1") ||
+          test.classList.contains("box-filled-2")
+        ) {
+        } else {
+          document
+            .querySelectorAll(".box")
+            [testNum].classList.add("box-filled-2");
+          testNum = testNum + 1;
+          player2Moves[testNum] = player2Moves[testNum] + 1;
+          player2TestMoves.push(testNum);
+          totalMoves.push([testNum]);
+          count = count + 1;
+          removeWinning();
+          break;
+          //   computerBlockMove();
+        }
+      } else {
+        randomSelector();
+      }
+    }
+  } //function playWinningMove
+
+  //Used to randomly place available spot
+  function randomSelector() {
+    console.log(`Random Selector Was Called`);
+    for (let i = 0; i < randomIndex.length; i++) {
+      let testNum = randomIndex[i];
+      let test = document.querySelectorAll(".box")[testNum];
+
+      if (
+        test.classList.contains("box-filled-1") ||
+        test.classList.contains("box-filled-2")
+      ) {
+      } else {
+        document
+          .querySelectorAll(".box")
+          [testNum].classList.add("box-filled-2");
+        testNum = testNum + 1;
+        player2Moves[testNum] = player2Moves[testNum] + 1;
+        player2TestMoves.push(testNum);
+        totalMoves.push([testNum]);
         count = count + 1;
-        if ( count > 8 ) {
-            $('#player1').removeClass('active')
-            $('#player2').removeClass('active')
-            endGame();
-            return;
-        }
-        //Tests Player 1 move to see if it is a winning move
-        testGameOver();
-        //Logic for Computer Move
-        calcCompMov();    
-        //For testing - logs the spaces occupied
-        console.log(`Player 1 moves ${player1Moves}`);
-        console.log(`Computer moves ${computerMoves}`);
-        $('#player1').addClass('active');
-    });
+        i = 100;
+      }
+    } //for loop
+    removeWinning();
+  } //funciton randomSelector()
 
+  checkWinner();
+} //computerTurnMedium
 
-
-
-
-
-
-//Function that determines the computers move
-    const calcCompMov = () => {
-        $('#player1').removeClass('active')
-        $('#player2').addClass('active')
-            if (!$("ul.boxes li:nth-child("+ 5 +")").hasClass('box-filled-1') && !$("ul.boxes li:nth-child("+ 5 +")").hasClass('box-filled-2')) {
-                $("ul.boxes li:nth-child("+ 5 +")").addClass('box-filled-2')
-                computerMoves[4] = 1;
-            } 
-            else if (!$("ul.boxes li:nth-child("+ 1 +")").hasClass('box-filled-1') && !$("ul.boxes li:nth-child("+ 1 +")").hasClass('box-filled-2')) {
-                $("ul.boxes li:nth-child("+ 1 +")").addClass('box-filled-2')
-                computerMoves[0] = 1;
-            } 
-            else if (!$("ul.boxes li:nth-child("+ 3 +")").hasClass('box-filled-1') && !$("ul.boxes li:nth-child("+ 3 +")").hasClass('box-filled-2')) {
-                $("ul.boxes li:nth-child("+ 3 +")").addClass('box-filled-2')
-                computerMoves[2] = 1;
-            } 
-            else if (!$("ul.boxes li:nth-child("+ 7 +")").hasClass('box-filled-1') && !$("ul.boxes li:nth-child("+ 7 +")").hasClass('box-filled-2')) {
-                $("ul.boxes li:nth-child("+ 7 +")").addClass('box-filled-2')
-                computerMoves[6] = 1;
-            } 
-            else if (!$("ul.boxes li:nth-child("+ 9 +")").hasClass('box-filled-1') && !$("ul.boxes li:nth-child("+ 9 +")").hasClass('box-filled-2')) {
-                $("ul.boxes li:nth-child("+ 9 +")").addClass('box-filled-2')
-                computerMoves[8] = 1;
-            }
-            else if (!$("ul.boxes li:nth-child("+ 2 +")").hasClass('box-filled-1') && !$("ul.boxes li:nth-child("+ 2 +")").hasClass('box-filled-2')) {
-                $("ul.boxes li:nth-child("+ 2 +")").addClass('box-filled-2')
-                computerMoves[1] = 1;
-            } 
-            else if (!$("ul.boxes li:nth-child("+ 4 +")").hasClass('box-filled-1') && !$("ul.boxes li:nth-child("+ 4 +")").hasClass('box-filled-2')) {
-                $("ul.boxes li:nth-child("+ 4 +")").addClass('box-filled-2')
-                computerMoves[3] = 1;
-            } 
-            else if (!$("ul.boxes li:nth-child("+ 6 +")").hasClass('box-filled-1') && !$("ul.boxes li:nth-child("+ 6 +")").hasClass('box-filled-2')) {
-                $("ul.boxes li:nth-child("+ 6 +")").addClass('box-filled-2')
-                computerMoves[5] = 1;
-            } 
-            else if (!$("ul.boxes li:nth-child("+ 8 +")").hasClass('box-filled-1') && !$("ul.boxes li:nth-child("+ 8 +")").hasClass('box-filled-2')) {
-                $("ul.boxes li:nth-child("+ 8 +")").addClass('box-filled-2')
-                computerMoves[7] = 1;
-            } 
-            else {
-                //For Testing
-                console.log('All FALSE!!!!!!!');
-            } 
-            $('#player2').removeClass('active')
-            $('#player1').addClass('active')
-            count = count + 1;
-            testGameOver(); 
+//changes the state of the player
+function changePlayer() {
+  //   console.log(`Count in changePlay:  ${count}`);
+  if (count > 8) {
+    setTimeout(function() {
+      gameOver();
+    }, 500);
+  } else {
+    let pOne = document.getElementById("player1");
+    let pTwo = document.getElementById("player2");
+    if (document.getElementById("player1").classList.contains("active")) {
+      document.getElementById("player1").classList.remove("active");
+      document.getElementById("player2").classList.add("active");
+    } else {
+      document.getElementById("player1").classList.add("active");
+      document.getElementById("player2").classList.remove("active");
     }
-
-
-
-//Game logic to determine winner of human vs. computer game
-    const testGameOver = () => {
-        $('#player1').removeClass('active')
-        $('#player2').removeClass('active')
-
-        if ( ((player1Moves[0] + player1Moves[1] + player1Moves[2]) == 3)  ||
-                ((player1Moves[3] + player1Moves[4] + player1Moves[5]) == 3 ) ||
-                ((player1Moves[6] + player1Moves[7] + player1Moves[8]) == 3 ) ||
-                ((player1Moves[0] + player1Moves[3] + player1Moves[6]) == 3 ) ||
-                ((player1Moves[1] + player1Moves[4] + player1Moves[7]) == 3 ) ||
-                ((player1Moves[2] + player1Moves[5] + player1Moves[8]) == 3 ) ||
-                ((player1Moves[0] + player1Moves[4] + player1Moves[8]) == 3 ) ||
-                ((player1Moves[2] + player1Moves[4] + player1Moves[6]) == 3 ) )
-        {
-            $('#player1').addClass('active')
-            endGame();
-        } else if ( ((computerMoves[0] + computerMoves[1] + computerMoves[2]) == 3)  ||
-                ((computerMoves[3] + computerMoves[4] + computerMoves[5]) == 3 ) ||
-                ((computerMoves[6] + computerMoves[7] + computerMoves[8]) == 3 ) ||
-                ((computerMoves[0] + computerMoves[3] + computerMoves[6]) == 3 ) ||
-                ((computerMoves[1] + computerMoves[4] + computerMoves[7]) == 3 ) ||
-                ((computerMoves[2] + computerMoves[5] + computerMoves[8]) == 3 ) ||
-                ((computerMoves[0] + computerMoves[4] + computerMoves[8]) == 3 ) ||
-                ((computerMoves[2] + computerMoves[4] + computerMoves[6]) == 3 ) )
-        {
-            $('#player2').addClass('active')
-            endGame();
-        }
+    if (
+      document.getElementById("player2").classList.contains("active") &&
+      gameType === "PvCEasy"
+    ) {
+      computerTurnEasy();
     }
+    if (pTwo.classList.contains("active") && gameType === "PvCMedium") {
+      computerTurnMedium();
+    }
+  }
+} //changePlayer
 
-
+//function display either winner or loser
+function gameOver() {
+  if (document.getElementById("player1").classList.contains("active")) {
+    console.log("Player 1 Winner");
+    document.querySelector(".message").innerHTML = `${playerOne} WINNER`;
+    document.querySelector("#finish").classList.add("screen-win-one");
+  } else if (document.getElementById("player2").classList.contains("active")) {
+    console.log("Player 2 Winner");
+    document.querySelector("#finish").classList.add("screen-win-two");
+    if (gameType === "PvP") {
+    document.querySelector(".message").innerHTML = `${playerTwo} WINNER`;
+  }else {
+    document.querySelector(".message").innerHTML = `COMPUTER WINNER`;
+  }
     
-//Function closes board and displays 'Winner' - called in click event
-    const endGame = () => {
-        $('#board').hide();
-        $('#finish').show().addClass('screen-win'); 
-        //If statement determining which winner/tie screen to display
-        if ( $('#player1').hasClass('active') ) {
-            $('#finish').addClass('screen-win-one');
-            $('.message').text(`${player1Name} is the Winner`); 
-        } else if ( $('#player2').hasClass('active') ) {
-            $('#finish').addClass('screen-win-two')
-            $('.message').text(`Computer is the Winner`);
-        } else {
-            $('#finish').addClass('screen-win-tie')
-            $('.message').text("It's a Tie!");
-        } 
-        console.log(`This is the count at end: ${count}`)
-    };
+  }
+  hideClassById("board");
+  showClassById("finish");
+} //function gameOver()
 
+//function that creates a random array 9 unique numbers
+function aRandomArray() {
+  randomIndex = [];
+  for (let i = 0; i < 9; i++) {
+    let randomArray = Math.floor(Math.random() * 9);
+    if (randomIndex.indexOf(randomArray) === -1) {
+      randomIndex.push(randomArray);
+    } else {
+      i = i - 1;
+    }
+  }
+} //aRandomArray()
 
-//When 'New Game' button is pressed the Start Game function is called
-    $("#finish .button").click(function(){
-        startGame();
-    });
-};
-
-
-startGame();
+function removeWinning() {
+  //game logic
+  for (let k = 0; k < player2TestMoves.length; k++) {
+    for (let i = 0; i < winningMoves.length; i++) {
+      //loop iterates through the each value of each array
+      for (let j = 0; j < winningMoves[i].length; j++) {
+        if (winningMoves[i][j] === player2TestMoves[k]) {
+          //if matching value found, remove entire array splic(indexStar, indexEnd)
+          winningMoves.splice(i, 1);
+          //if array is spliced, index number needs to be reduced by 1
+          i--;s
+          break;
+        }
+      }
+    }
+  }
+} //removeWinning();
